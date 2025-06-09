@@ -1,0 +1,10 @@
+Best params: {'xgb__colsample_bytree': 0.8, 'xgb__learning_rate': 0.1, 'xgb__max_depth': 6, 'xgb__n_estimators': 200, 'xgb__subsample': 0.8}
+
+              precision    recall  f1-score   support
+
+           0       0.77      0.78      0.78     85761
+           1       0.76      0.75      0.76     79239
+
+    accuracy                           0.77    165000
+   macro avg       0.77      0.77      0.77    165000
+weighted avg       0.77      0.77      0.77    165000
