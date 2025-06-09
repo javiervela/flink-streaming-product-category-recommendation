@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "flink-streaming-product-category-recommendation"
+version = "0.1.0"
+description = ""
+authors = ["Javier Vela <javier.vela00@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.13"
+xgboost = "^3.0.2"
+pandas = "^2.3.0"
+scikit-learn = "^1.7.0"
+nyoka = "^5.5.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
