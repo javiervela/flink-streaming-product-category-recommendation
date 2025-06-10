@@ -9,7 +9,7 @@ from sklearn.model_selection import GridSearchCV
 from nyoka import xgboost_to_pmml
 
 DATA_DIR = "./data"
-MODEL_DIR = "./model_training"
+MODEL_DIR = "./model"
 
 # Load data
 X_train = pd.read_csv(f"{DATA_DIR}/X_train.csv", index_col="idx")

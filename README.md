@@ -14,9 +14,9 @@ The backend pipeline is built using Apache Flink for real-time streaming decisio
 
 ## Dataset
 
-The data is organized under the `data/` directory:
+The data is organized under the `./model_training/data/` directory:
 
-```
+```txt
 data/
 ├── X_train.csv     # Features for training (indexed by customer ID)
 ├── X_test.csv      # Features for testing
@@ -36,7 +36,7 @@ Each row corresponds to a customer session with input features like:
 
 The training code lives in the `model_training/` directory:
 
-```
+```txt
 model_training/
 ├── train.py                               # XGBoost training and PMML export
 ├── classification_report_xgboost.txt      # Evaluation report for XGBoost
@@ -89,21 +89,19 @@ This will:
 
 - Train the model
 - Print best hyperparameters
-- Save evaluation report
+- Save evaluation report to `classification_report_xgboost.txt`
 - Export the model to `xgboost_model.pmml`
 
 ---
 
 ## Directory Structure
 
-```
+```txt
 .
-├── data/                          # Training/testing data
 ├── model_training/                # Model training, export scripts, and Poetry environment
-│   ├── train.py
-│   ├── classification_report_xgboost.txt
-│   ├── classification_report_randomforest.txt
-│   ├── xgboost_model.pmml
+│   ├── data/                      # Training/testing data
+│   ├── model/                     # Trained model and evaluation reports
+│   ├── train.py                   # Main training script
 │   ├── pyproject.toml
 │   └── poetry.lock
 └── README.md                      # This file
