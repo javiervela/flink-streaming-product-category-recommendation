@@ -41,7 +41,9 @@ model_training/
 ├── train.py                               # XGBoost training and PMML export
 ├── classification_report_xgboost.txt      # Evaluation report for XGBoost
 ├── classification_report_randomforest.txt # Optional RandomForest report
-└── xgboost_model.pmml                     # Exported model for Flink
+├── xgboost_model.pmml                     # Exported model for Flink
+├── pyproject.toml                         # Poetry config for model training
+└── poetry.lock                            # Locked dependencies
 ```
 
 ### Training Methodology
@@ -53,11 +55,14 @@ model_training/
 
 ---
 
-## Setup and Execution
+### Model Training Setup and Execution
 
-### 1. Install dependencies (Poetry required)
+#### 1. Install dependencies (Poetry required)
+
+Navigate to the `model_training/` directory and install dependencies:
 
 ```bash
+cd model_training
 poetry install
 ```
 
@@ -68,16 +73,16 @@ This installs Python dependencies listed in `pyproject.toml`, including:
 - `nyoka`
 - `pandas`
 
-### 2. Activate virtual environment
+#### 2. Activate virtual environment
 
 ```bash
 poetry shell
 ```
 
-### 3. Run the training script
+#### 3. Run the training script
 
 ```bash
-python model_training/train.py
+python train.py
 ```
 
 This will:
@@ -94,10 +99,16 @@ This will:
 ```
 .
 ├── data/                          # Training/testing data
-├── model_training/               # Model training and export scripts
-├── pyproject.toml                # Poetry config
-├── poetry.lock                   # Locked dependencies
-└── README.md                     # This file
+├── model_training/                # Model training, export scripts, and Poetry environment
+│   ├── train.py
+│   ├── classification_report_xgboost.txt
+│   ├── classification_report_randomforest.txt
+│   ├── xgboost_model.pmml
+│   ├── pyproject.toml
+│   └── poetry.lock
+└── README.md                      # This file
+```
+
 ```
 
 ---
