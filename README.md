@@ -12,6 +12,26 @@ The backend pipeline is built using Apache Flink for real-time streaming decisio
 
 ---
 
+## Directory Structure
+
+```txt
+.
+├── model_training/
+│   ├── data/                                       # Training/testing data
+│   ├── model/                                      # Trained model and evaluation reports
+│   ├── train.py                                    # Main training script
+│   ├── pyproject.toml
+│   └── poetry.lock
+├── flink_pipeline/
+│   ├── build.sbt                                   # SBT build file
+│   └── src/main/scala/.../RecommendationJob.scala  # Flink streaming application (Scala)
+├── scripts/                                        # Utility scripts
+│   └── run_pipeline.sh                             # Script to launch pipeline
+└── README.md                                       # This file
+```
+
+---
+
 ## Dataset
 
 The data is organized under the `./model_training/data/` directory:
@@ -105,7 +125,7 @@ After training, evaluation metrics are saved in `classification_report_xgboost.t
 
 ## Configuring the A/B Test Experiment
 
-To validate your model in production, configure an A/B test at [http://bigdatamaster.dataspartan.com/](http://bigdatamaster.dataspartan.com/)
+To validate the model in production, configure an A/B test at [http://bigdatamaster.dataspartan.com/](http://bigdatamaster.dataspartan.com/)
 
 ### Steps to Configure
 
@@ -140,15 +160,70 @@ $$
 4. Once Confirmed, the platform will generate a **token**. Add this token in all predictions sent to the Kafka topic `topic_student_prediction`:
 
 ```json
-{ "uuid": 1234567, "value": 1, "token": "YOUR_TOKEN_HERE" }
+{ "uuid": 1234567, "value": 1, "token": "TOKEN" }
 ```
 
 ---
 
-## Next Steps
+## Flink Pipeline
 
-Once the PMML model is generated, it can be integrated into the Flink stream processing pipeline to make real-time decisions for each incoming user session based on data streamed from Kafka.
+The streaming application consumes demographic and historic purchase data, joins them, applies the PMML model, and publishes predictions in real time.
 
-The Flink pipeline code and deployment instructions will follow in the next steps of the project.
+### Requirements
+
+- Java JDK 8 or higher
+- Scala 2.12
+- SBT (version 1.5+)
+- Apache Flink 1.20
+- Apache Kafka cluster (on bigdatamaster.dataspartan.com)
+- Environment variables configured in a `.env` file:
+
+  ```dotenv
+  BROKERS=bigdatamaster.dataspartan.com:19093,bigdatamaster.dataspartan.com:29093,bigdatamaster.dataspartan.com:39093
+  PMML_PATH=/path/to/model/xgboost_model.pmml
+  TOKEN=ab_test_token
+  DEMO_TOPIC=topic_demographic
+  HIST_TOPIC=topic_historic
+  OUT_TOPIC=topic_student_prediction
+  ```
+
+### Building the Pipeline
+
+Generate a fat JAR using SBT:
+
+```bash
+cd flink_pipeline
+sbt assembly
+```
+
+This produces `target/scala-2.12/flink-streaming-product-category-recommendation-assembly-0.1.0.jar`.
+
+### Running the Pipeline
+
+Use the provided script or run directly with Flink:
+
+```bash
+flink run \
+    ./target/scala-2.12/flink_recommendation_pipeline.jar \
+    --job-name RecommendationJob \
+    --detached
+```
+
+### Architecture
+
+1. **Kafka Sources**: Two streams (`topic_demographic`, `topic_historic`) ingest user session data.
+2. **Parsing**: JSON is deserialized into domain objects (`Demographic`, `Historic`).
+3. **Join**: A `KeyedCoProcessFunction` matches records by `uuid`, buffering one side until the other arrives.
+4. **Feature Assembly**: Merged into a unified `User` object containing age, gender flags, and historic category counts.
+5. **PMML Prediction**: The `PMMLPredictor` loads the XGBoost model and scores incoming feature vectors.
+6. **Sink**: Outputs JSON predictions with `uuid`, `value`, and `token` to `topic_student_prediction`.
+
+![Flink Pipeline Architecture in the Flink UI](./images/flink_pipeline.png)
 
 ---
+
+## Experiment Results
+
+The A/B test results are obtained from the platform at [http://bigdatamaster.dataspartan.com/](http://bigdatamaster.dataspartan.com/). The results shows `1` as the experiment has been successful, indicating that the model is effective in predicting whether a user should be shown a new product category.
+
+![Experiment Results](./images/experiment_table.png)
