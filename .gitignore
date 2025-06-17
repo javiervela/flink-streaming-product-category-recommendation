@@ -1,0 +1,6 @@
+.vscode
+.metals
+target
+.bloop
+experiments.md
+.env
